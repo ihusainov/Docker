@@ -1,0 +1,33 @@
+version: '2' 
+services: 
+  confluence: 
+    container_name: confluence
+    image: atlassian/confluence-server:7.0
+    environment: 
+     - ATL_PROXY_NAME=confluence.corp.local
+     - ATL_PROXY_PORT=443
+     - ATL_TOMCAT_SCHEME=https
+    volumes:
+     - /atlassian/confluence/home/:/var/atlassian/application-data/confluence    
+    networks:
+      default:
+        aliases:
+         - confluence.corp.local   
+
+
+  nginx: 
+    container_name: nginx 
+    image: nginx:latest 
+    volumes:
+     - /atlassian/nginx/site.conf:/etc/nginx/nginx.conf
+     - /atlassian/nginx/hosts:/etc/hosts 
+     - /etc/ssl/wildcard:/etc/ssl/wildcard
+    depends_on: 
+     - confluence 
+    ports: 
+     - "80:80"
+     - "443:443" 
+    networks: 
+      default: 
+        aliases:
+         - confluence.corp.local
